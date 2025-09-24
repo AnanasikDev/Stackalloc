@@ -1,13 +1,13 @@
 #include "meme.h"
 #include <iostream>
 
-PTR Heap::Alloc(WORD length) {
+void* Heap::Alloc(short length) {
 	Chunk* chk = head;
-	WORD adr{ 0 };
+	short adr{ 0 };
 
 	if (head == nullptr) {
 		ForceAlloc(length, 0, nullptr, nullptr);
-		return (PTR)& heap[adr];
+		return (void*)& heap[adr];
 	}
 
 	while (chk) {
@@ -18,25 +18,25 @@ PTR Heap::Alloc(WORD length) {
 		if (!chk) { // last chunk
 			if (adr + length < SIZE) {
 				ForceAlloc(length, adr, prev, chk);
-				return (PTR)&heap[adr];
+				return (void*)&heap[adr];
 			}
 			else {
 				printf("Last chunk is too close to the end of the heap\n");
-				return (PTR)0;
+				return (void*)0;
 			}
 		}
 
 		if (adr + length <= chk->address) {
 			ForceAlloc(length, adr, prev, chk);
-			return (PTR)&heap[adr];
+			return (void*)&heap[adr];
 		}
 
 	}
 	printf("No valid memory chunk found for allocation\n");
-	return (PTR)0;
+	return (void*)0;
 }
 
-void Heap::ForceAlloc(WORD length, WORD address, Chunk* prev, Chunk* next) {
+void Heap::ForceAlloc(short length, short address, Chunk* prev, Chunk* next) {
 	int index = 0;
 	if (freedChunkNum > 0) {
 		--freedChunkNum;
@@ -83,7 +83,7 @@ void Heap::Free(Chunk& block) {
 	block.next = nullptr;
 }
 
-void Heap::Free(PTR ptr) {
+void Heap::Free(void* ptr) {
 	for (int i{ 0 }; i < MAX_CHUNKS; i++) {
 		if (&heap[chunks[i].address] == ptr) {
 			Free(chunks[i]);
@@ -92,9 +92,9 @@ void Heap::Free(PTR ptr) {
 	}
 }
 
-void Heap::DisplayHeap(WORD from, WORD to) const {
+void Heap::DisplayHeap(short from, short to) const {
 	printf("[");
-	for (WORD i = from; i < to; i++) {
+	for (short i = from; i < to; i++) {
 		char c = heap[i];
 		if (c == '\0') c = '#';
 		if (c == '\n') c = '\\';
@@ -106,8 +106,8 @@ void Heap::DisplayHeap(WORD from, WORD to) const {
 
 void Heap::DisplayChunks() const {
 	Chunk* chk = head;
-	WORD lastadr{ 0 };
-	WORD lastsize{ 0 };
+	short lastadr{ 0 };
+	short lastsize{ 0 };
 	if (!chk || chk->size == INVALID) {
 		printf("No allocated chunks\n");
 		return;
@@ -115,11 +115,11 @@ void Heap::DisplayChunks() const {
 	while (chk) {
 		if (chk->size == 0 || chk->size == INVALID) continue;
 
-		for (WORD i{ lastadr + lastsize }; i < chk->address; i++) {
+		for (short i{ lastadr + lastsize }; i < chk->address; i++) {
 			printf("#");
 		}
 
-		for (WORD i{ 0 }; i < chk->size; i++) {
+		for (short i{ 0 }; i < chk->size; i++) {
 			printf("%d", chk->index);
 		}
 		lastsize = chk->size;
