@@ -5,6 +5,7 @@
 using BYTE	= unsigned char;
 using WORD	= unsigned int;
 using PTR	= void*;
+#define INVALID ((WORD)-1)
 
 constexpr WORD SIZE = 1024;
 constexpr WORD MAX_CHUNKS = 512;

@@ -11,8 +11,8 @@ PTR Heap::Alloc(WORD length) {
 	}
 
 	while (chk) {
-		
-		Chunk* prev = chk;
+			
+		Chunk* const prev = chk; // prev and chk are valid
 		adr = chk->address + chk->size;
 		chk = chk->next;
 		if (!chk) { // last chunk
@@ -73,11 +73,12 @@ void Heap::Free(Chunk& block) {
 	// reset chunk
 	if (block.prev) block.prev->next = block.next;
 	else {
-		head = block.next;
+		if (block.next) head = block.next;
+		head = nullptr;
 	}
-	block.address = -1;
-	block.size = -1;
-	block.index = -1;
+	block.address = INVALID;
+	block.size = INVALID;
+	block.index = INVALID;
 	block.prev = nullptr;
 	block.next = nullptr;
 }
@@ -94,7 +95,11 @@ void Heap::Free(PTR ptr) {
 void Heap::DisplayHeap(WORD from, WORD to) const {
 	printf("[");
 	for (WORD i = from; i < to; i++) {
-		printf("%c", heap[i] == '\0' ? '#' : heap[i]);
+		char c = heap[i];
+		if (c == '\0') c = '#';
+		if (c == '\n') c = '\\';
+		if (c == '\t') c = '\\';
+		printf("%c", c);
 	}
 	printf("]\n");
 }
@@ -103,8 +108,12 @@ void Heap::DisplayChunks() const {
 	Chunk* chk = head;
 	WORD lastadr{ 0 };
 	WORD lastsize{ 0 };
+	if (!chk || chk->size == INVALID) {
+		printf("No allocated chunks\n");
+		return;
+	}
 	while (chk) {
-		if (chk->size == 0 || chk->size == (WORD)-1) continue;
+		if (chk->size == 0 || chk->size == INVALID) continue;
 
 		for (WORD i{ lastadr + lastsize }; i < chk->address; i++) {
 			printf("#");
