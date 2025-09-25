@@ -37,7 +37,7 @@ void* Heap::Alloc(short length) {
 }
 
 void Heap::ForceAlloc(short length, short address, Chunk* prev, Chunk* next) {
-	int index = 0;
+	short index = 0;
 	if (freedChunkNum > 0) {
 		--freedChunkNum;
 		index = freedChunkIndieces[freedChunkNum];
@@ -51,13 +51,14 @@ void Heap::ForceAlloc(short length, short address, Chunk* prev, Chunk* next) {
 		}
 	}
 	chunks[index].Set(address, length, prev, next, index);
-	if (prev) prev->next = &chunks[index];
+	
+	// TODO: save a pointer to the chunk in the metadata (on the heap itself)
+
 	if (head == nullptr) {
 		head = &chunks[index];
 	}
-	else {
-		head[address].next = &chunks[index];
-	}
+	if (prev) prev->next = &chunks[index];
+	if (next) next->prev = &chunks[index];
 }
 
 void Heap::Free(Chunk& block) {
@@ -72,23 +73,23 @@ void Heap::Free(Chunk& block) {
 	
 	// reset chunk
 	if (block.prev) block.prev->next = block.next;
-	else {
+	else { // first chunk
 		if (block.next) head = block.next;
-		head = nullptr;
+		else head = nullptr;
 	}
-	block.address = INVALID;
-	block.size = INVALID;
-	block.index = INVALID;
-	block.prev = nullptr;
-	block.next = nullptr;
+	if (head) head->prev = nullptr;
+
+	block.Reset();
 }
 
 void Heap::Free(void* ptr) {
-	for (int i{ 0 }; i < MAX_CHUNKS; i++) {
-		if (&heap[chunks[i].address] == ptr) {
-			Free(chunks[i]);
-			break;
+	Chunk* chk{ head };
+	while (chk) {
+		if (&heap[chk->address] == ptr) {
+			Free(*chk);
+			return;
 		}
+		chk = chk->next;
 	}
 }
 

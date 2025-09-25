@@ -30,6 +30,14 @@ public:
 		index = _index;
 		printf("Chunk allocated at %d with size %d\n", address, size);
 	}
+
+	void Reset(){
+		address = INVALID;
+		size = INVALID;
+		index = INVALID;
+		prev = nullptr;
+		next = nullptr;
+	}
 };
 
 class Heap {
