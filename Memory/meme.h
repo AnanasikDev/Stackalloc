@@ -2,27 +2,30 @@
 
 #include <stdio.h>
 
-constexpr short SIZE = 1024;
-constexpr short MAX_CHUNKS = 512;
-constexpr short INVALID = ((short)-1);
+using WORD = short;
+using BYTE = unsigned char;
+
+constexpr WORD SIZE = 1024;
+constexpr WORD MAX_CHUNKS = 512;
+constexpr WORD INVALID = ((WORD)-1);
 
 class Chunk {
 public:
-	short address = -1; // max value
-	short size = -1;
+	WORD address = -1; // max value
+	WORD size = -1;
 	Chunk* prev = 0;
 	Chunk* next = 0;
-	short index = -1;
+	WORD index = -1;
 
 	Chunk() = default;
-	Chunk(short _address, short _size, Chunk* _prev, Chunk* _next) : address(_address), size(_size), prev(_prev), next(_next)  {
+	Chunk(WORD _address, WORD _size, Chunk* _prev, Chunk* _next) : address(_address), size(_size), prev(_prev), next(_next)  {
 	}
 	~Chunk() {
 		address = -1;
 		size = -1;
 	}
 
-	void Set(short _address, short _size, Chunk* _prev, Chunk* _next, short _index) {
+	void Set(WORD _address, WORD _size, Chunk* _prev, Chunk* _next, WORD _index) {
 		address = _address;
 		size = _size;
 		prev = _prev;
@@ -42,17 +45,17 @@ public:
 
 class Heap {
 public:
-	unsigned char heap[SIZE];
+	BYTE heap[SIZE];
 	Chunk chunks[MAX_CHUNKS];
 	Chunk* head;
-	short chunkindex = 0;
-	short freedChunkIndieces[MAX_CHUNKS];
-	short freedChunkNum = 0;
+	WORD chunkindex = 0;
+	WORD freedChunkIndieces[MAX_CHUNKS];
+	WORD freedChunkNum = 0;
 
-	void* Alloc(short length);
-	void ForceAlloc(short length, short address, Chunk* prev, Chunk* next);
+	void* Alloc(WORD length);
+	void ForceAlloc(WORD length, WORD address, Chunk* prev, Chunk* next);
 	void Free(Chunk& block);
 	void Free(void* ptr);
-	void DisplayHeap(short from, short to) const;
+	void DisplayHeap(WORD from, WORD to) const;
 	void DisplayChunks() const;
 };

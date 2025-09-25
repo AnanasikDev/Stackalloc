@@ -1,9 +1,9 @@
 #include "meme.h"
 #include <iostream>
 
-void* Heap::Alloc(short length) {
+void* Heap::Alloc(WORD length) {
 	Chunk* chk = head;
-	short adr{ 0 };
+	WORD adr{ 0 };
 
 	if (head == nullptr) {
 		ForceAlloc(length, 0, nullptr, nullptr);
@@ -36,8 +36,8 @@ void* Heap::Alloc(short length) {
 	return (void*)0;
 }
 
-void Heap::ForceAlloc(short length, short address, Chunk* prev, Chunk* next) {
-	short index = 0;
+void Heap::ForceAlloc(WORD length, WORD address, Chunk* prev, Chunk* next) {
+	WORD index = 0;
 	if (freedChunkNum > 0) {
 		--freedChunkNum;
 		index = freedChunkIndieces[freedChunkNum];
@@ -93,9 +93,9 @@ void Heap::Free(void* ptr) {
 	}
 }
 
-void Heap::DisplayHeap(short from, short to) const {
+void Heap::DisplayHeap(WORD from, WORD to) const {
 	printf("[");
-	for (short i = from; i < to; i++) {
+	for (WORD i = from; i < to; i++) {
 		char c = heap[i];
 		if (c == '\0') c = '#';
 		if (c == '\n') c = '\\';
@@ -107,8 +107,8 @@ void Heap::DisplayHeap(short from, short to) const {
 
 void Heap::DisplayChunks() const {
 	Chunk* chk = head;
-	short lastadr{ 0 };
-	short lastsize{ 0 };
+	WORD lastadr{ 0 };
+	WORD lastsize{ 0 };
 	if (!chk || chk->size == INVALID) {
 		printf("No allocated chunks\n");
 		return;
@@ -116,11 +116,11 @@ void Heap::DisplayChunks() const {
 	while (chk) {
 		if (chk->size == 0 || chk->size == INVALID) continue;
 
-		for (short i{ lastadr + lastsize }; i < chk->address; i++) {
+		for (WORD i{ lastadr + lastsize }; i < chk->address; i++) {
 			printf("#");
 		}
 
-		for (short i{ 0 }; i < chk->size; i++) {
+		for (WORD i{ 0 }; i < chk->size; i++) {
 			printf("%d", chk->index);
 		}
 		lastsize = chk->size;
