@@ -2,60 +2,59 @@
 
 #include <stdio.h>
 
+using FOUR_WORD = long long int;
+using DOUBLE_WORD = int;
 using WORD = short;
 using BYTE = unsigned char;
 
-constexpr WORD SIZE = 1024;
+constexpr DOUBLE_WORD SIZE = 1024;
 constexpr WORD MAX_CHUNKS = 512;
-constexpr WORD INVALID = ((WORD)-1);
+constexpr DOUBLE_WORD INVALID = ((unsigned)0);
 
 class Chunk {
 public:
-	WORD address = -1; // max value
-	WORD size = -1;
-	Chunk* prev = 0;
-	Chunk* next = 0;
-	WORD index = -1;
+	static constexpr DOUBLE_WORD metasize = sizeof(void*);
 
-	Chunk() = default;
-	Chunk(WORD _address, WORD _size, Chunk* _prev, Chunk* _next) : address(_address), size(_size), prev(_prev), next(_next)  {
-	}
-	~Chunk() {
-		address = -1;
-		size = -1;
-	}
+	DOUBLE_WORD address = INVALID; // max value
+	DOUBLE_WORD size	= INVALID;
+	WORD nextIndex		= INVALID;
+	WORD index			= INVALID;
 
-	void Set(WORD _address, WORD _size, Chunk* _prev, Chunk* _next, WORD _index) {
+	void Set(DOUBLE_WORD _address, DOUBLE_WORD _size, WORD _nextIndex, DOUBLE_WORD _index) {
 		address = _address;
 		size = _size;
-		prev = _prev;
-		next = _next;
+		nextIndex = _nextIndex;
 		index = _index;
 		printf("Chunk allocated at %d with size %d\n", address, size);
 	}
 
 	void Reset(){
-		address = INVALID;
-		size = INVALID;
-		index = INVALID;
-		prev = nullptr;
-		next = nullptr;
+		address		= INVALID;
+		size		= INVALID;
+		index		= INVALID;
+		nextIndex	= INVALID;
 	}
 };
 
 class Heap {
 public:
-	BYTE heap[SIZE];
+	BYTE data[SIZE];
 	Chunk chunks[MAX_CHUNKS];
 	Chunk* head;
-	WORD chunkindex = 0;
-	WORD freedChunkIndieces[MAX_CHUNKS];
-	WORD freedChunkNum = 0;
+	DOUBLE_WORD chunkindex = 0;
+	DOUBLE_WORD freedChunkIndieces[MAX_CHUNKS];
+	DOUBLE_WORD freedChunkNum = 0;
 
-	void* Alloc(WORD length);
-	void ForceAlloc(WORD length, WORD address, Chunk* prev, Chunk* next);
-	void Free(Chunk& block);
+	void* Alloc(DOUBLE_WORD length);
+	void ForceAlloc(DOUBLE_WORD length, DOUBLE_WORD address, Chunk* prev, Chunk* next);
+	void Free(Chunk* block);
 	void Free(void* ptr);
-	void DisplayHeap(WORD from, WORD to) const;
+	void DisplayHeap(DOUBLE_WORD from, DOUBLE_WORD to) const;
 	void DisplayChunks() const;
+
+private:
+	void* SetMeta(const Chunk* const chk, Chunk* const prev);
+	Chunk* const GetPrev(const Chunk* const chk) const;
+	Chunk* At(WORD index);
+	Chunk* Next(Chunk* chk);
 };
